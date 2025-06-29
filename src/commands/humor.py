@@ -1,3 +1,4 @@
+import random
 from discord.ext import commands
 
 class Humor(commands.Cog):
@@ -8,5 +9,15 @@ class Humor(commands.Cog):
     async def wack(self, ctx): 
         await ctx.reply("uhh my head hurts\n- WPCO AI Bot")
 
+    @commands.hybrid_command(with_app_command = True, brief = "Make the bot say anything.")
+    async def say(ctx, *, text):
+        if ctx.prefix:
+            await ctx.message.delete()
+        await ctx.send(str(text))
+
+    @commands.hybrid_command(with_app_command = True, brief = "Classic RNG command.")
+    async def roll(ctx, end_num: int, hide: bool = False):
+        await ctx.reply(f":game_die: Rolled Number: {random.randint(1, end_num)}", ephemeral=hide)
+
 async def setup(bot):
-    await bot.add_cog(Humor(bot=bot))
+    await bot.add_cog(Humor(bot=bot))   

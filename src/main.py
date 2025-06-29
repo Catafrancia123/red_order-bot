@@ -2,6 +2,7 @@
     - Creation of the bot."""
 
 import discord, datetime, os, sys, asyncio, playsound3
+from pathlib import Path
 from saveloader import load_json
 from discord.ext import commands
 from rich import print as rprint
@@ -40,7 +41,7 @@ class Bot(commands.Bot):
                 9:"Connection with Discord failed, please try again later.",
                 10:"Connection with Discord failed, please try again later.", 
                 11:"Connection with Discord failed, please try again later.", 
-                99:f"Unknown Error, please ping catamapp/lightningstormyt ASAP. (ERR ??)\nError Message: {error_msg}\n(IF THIS IS A KEY ERROR IGNORE.)"}
+                99:f"An error happened, please contact the developers.\nError Message: ```{error_msg}```"}
 
         embedvar = discord.Embed(
             title=f"Error {error_code:02d}",
@@ -48,43 +49,86 @@ class Bot(commands.Bot):
             color=discord.Color.red(),
         )
         embedvar.set_footer(text=time_format)
-        embedvar.set_thumbnail(url="attachment://WPCO.png")
         if error_code != 99:
             print(f"ERR {error_code:02d}: {time_format} by {user}")
 
         return embedvar
     
     async def on_command_error(self, ctx, error):
-        rprint(f'[[bright_red]ERROR[/bright_red]]', error)
-        await ctx.reply(error)
+        rprint(f"User: {ctx.author.name}, [grey]{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}[/grey] [[bright_red]ERROR[/bright_red]] {error}")
+        await ctx.reply(f"An error occured, please contact a developer.\nError: ```{error}```")
 
     async def setup_hook(self):
+        rprint(f"[grey]{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}[/grey] [[light_green]VERSION[/light_green]] Discord.py version [bright_yellow]{discord.__version__}[/bright_yellow], Bot version [bright_yellow]{BOTVER}[/bright_yellow]")
         await self.load_extension("jishaku")
+        await self.tree.sync()
+        rprint(f'[grey]{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}[/grey] [[light_green]SUCCESSFUL[/light_green]] Synced slash commands and loaded jishaku.')
         
-        func_commands = os.listdir("./commands")
-        for command in func_commands:
-            if command.endswith(".py") and not command.startswith("_"):
-                try:
-                    await self.load_extension(f"commands.{command[:-3]}")
-                    rprint(f'[grey]{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}[/grey] [[light_green]SUCCESSFUL[/light_green]] Module \"{command[:-3]}\" has been loaded.')
-                except Exception as e:
-                    rprint(f'[grey]{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}[/grey] [[bright_red]ERROR[/bright_red]] Module \"{command[:-3]}\" failed to load.')
+        func_commands = Path("./commands")
+        for command in [str(x) for x in func_commands.iterdir() if x.is_file()]:
+            try:
+                await self.load_extension(command.replace("\\", ".")[:-3])
+                rprint(f'[grey]{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}[/grey] [[light_green]SUCCESSFUL[/light_green]] Module \"{command[:-3]}\" has been loaded.')
+            except Exception as e:
+                rprint(f'[grey]{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}[/grey] [[bright_red]ERROR[/bright_red]] Module \"{command[:-3]}\" failed to load.')
 
 bot = Bot()
 
 @bot.event
 async def on_ready():
-    rprint(f"[grey]{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}[/grey] [[light_green]VERSION[/light_green]] Discord.py version [bright_yellow]{discord.__version__}[/bright_yellow], Bot version [bright_yellow]{BOTVER}[/bright_yellow]")
     rprint(f'[grey]{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}[/grey] [[light_green]SUCCESSFUL[/light_green]] Logged in as [blue]{bot.user}[/blue] (ID: [#cccccc]{bot.user.id}[/#cccccc])')
-    #! asyncio stupid, fix this
-    await bot.tree.sync()
-    rprint(f'[grey]{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}[/grey] [[light_green]SUCCESSFUL[/light_green]] Synced slash commands and loaded jishaku.')
-    rprint(f"[grey]{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}[/grey] [[bright_yellow]WARNING[/bright_yellow]] Please ping catamapp/lightningstormyt for bot maintenance/unhandled errors.")
+    rprint(f"[grey]{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}[/grey] [[bright_yellow]WARNING[/bright_yellow]] Please ping catamapp for bot maintenance/unknown errors.")
     rprint(f'[grey]{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}[/grey] [[light_green]COMPLETE[/light_green]] Bot has completed startup and now can be used.')
     try:
         await asyncio.to_thread(playsound3.playsound, "sounds/beep.wav")
     except Exception as e:
         pass
+
+@bot.event
+async def on_command_error(ctx, error):
+    user = ctx.author
+    time = datetime.datetime.now()
+    time_format = time.strftime('%A, %d %B %Y, %I:%M %p') 
+    if isinstance(error, commands.CommandNotFound):
+        #! command not found
+        await ctx.send(embed=bot.make_error_embed(user.name,1))
+    elif isinstance(error, commands.MissingRequiredArgument):
+        #! no input
+        await ctx.send(embed=bot.make_error_embed(user.name,2))
+    elif isinstance(error, commands.BadArgument):
+        #! input not valid/wrong
+        await ctx.send(embed=bot.make_error_embed(user.name,3))
+    elif isinstance(error, commands.MissingAnyRole):
+        #! no perms?
+        await ctx.send(embed=bot.make_error_embed(user.name,4))
+    elif isinstance(error, discord.HTTPException):
+        #! discord.py error
+        await ctx.send(embed=bot.make_error_embed(user.name,5))
+    elif isinstance(error, commands.CheckFailure):
+        #! not registered
+        await ctx.send(embed=bot.make_error_embed(user.name,6))
+    elif isinstance(error, discord.Forbidden):
+        #! bot doesnt have perm to do an action
+        await ctx.send(embed=bot.make_error_embed(user.name,7))
+    elif isinstance(error, commands.CommandRegistrationError):
+        #! command registration failed
+        await ctx.send(embed=bot.make_error_embed(user.name,8))
+    elif isinstance(error, discord.PrivilegedIntentsRequired):
+        #! intents not properly enabled
+        await ctx.send(embed=bot.make_error_embed(user.name,9))
+    elif isinstance(error, discord.ConnectionClosed):
+        #! connection with discord closed
+        await ctx.send(embed=bot.make_error_embed(user.name,10))
+    elif isinstance(error, discord.GatewayNotFound):
+        #! connection with discord gateaway failed
+        await ctx.send(embed=bot.make_error_embed(user.name,11))
+    elif isinstance(error, discord.NotFound):
+        #! 404 not found
+        await ctx.send(embed=bot.make_error_embed(user.name,12))
+    else:
+        #! what happen?? (python error or smth)
+        rprint(f"[[bright_red]ERROR[/bright_red]] Unknown error: {error}\n{time_format}")
+        await ctx.send(embed=bot.make_error_embed(user.name,error_msg=error))
 
 if __name__ == "__main__":
     clear()

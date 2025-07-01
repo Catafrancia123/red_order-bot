@@ -196,3 +196,4 @@ cython_debug/
 # misc
 src/config.json
 src/test.py
+src/commands/test.py

@@ -10,7 +10,7 @@ class Humor(commands.Cog):
         await ctx.reply("uhh my head hurts\n- WPCO AI Bot")
 
     @commands.hybrid_command(with_app_command = True, brief = "Make the bot say anything.")
-    async def say(ctx, *, text):
+    async def say(ctx, *text):
         if ctx.prefix:
             await ctx.message.delete()
         await ctx.send(str(text))

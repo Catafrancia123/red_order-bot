@@ -8,6 +8,7 @@ class Maintenance(commands.Cog):
         self.bot = bot
         self.time_format = datetime.datetime.strftime(datetime.datetime.now(datetime.timezone.utc), "Today at %I:%M %p UTC.")
 
+    @commands.has_any_role(1378763072357011566, 1388909508129980598)
     @commands.hybrid_command(with_app_command = True, brief = "Shuts down the bot manually.")
     async def shutdown(self, ctx):
         user = ctx.author
@@ -28,16 +29,20 @@ class Maintenance(commands.Cog):
 
     @commands.hybrid_command(with_app_command = True, brief = "Used to sync commands.")
     async def sync(self, ctx):
-        await self.bot.tree.sync()
-        func_commands = Path("./")
-        for command in [str(x) for x in func_commands.iterdir() if x.is_file()]:
-            try:
-                await self.reload_extension(command.replace("\\", ".")[:-3])
-                rprint(f'[grey]{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}[/grey] [[light_green]SUCCESSFUL[/light_green]] Module \"{command[:-3]}\" has been reloaded.')
-            except Exception as e:
-                rprint(f'[grey]{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}[/grey] [[bright_red]ERROR[/bright_red]] Module \"{command[:-3]}\" failed to reload.')
+        if ctx.author.id != 751049879630905345:
+            await ctx.reply("You do not have permission to run this command.")
+        else:
+            await self.bot.tree.sync()
+            func_commands = Path("./commands")
+            for command in [str(x) for x in func_commands.iterdir() if x.is_file()]:
+                try:
+                    await self.reload_extension(command.replace("\\", ".")[:-3])
+                    rprint(f'[grey]{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}[/grey] [[light_green]SUCCESSFUL[/light_green]] Module \"{command[:-3]}\" has been reloaded.')
+                except Exception as e:
+                    await ctx.reply(f"Module \"{command[:-3]}\" failed to reload.")
+                    rprint(f'[grey]{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}[/grey] [[bright_red]ERROR[/bright_red]] Module \"{command[:-3]}\" failed to reload.')
 
-        await ctx.reply("All commands have been synced.")
+            await ctx.reply("All commands have been synced.")
 
 async def setup(bot):
     await bot.add_cog(Maintenance(bot=bot))

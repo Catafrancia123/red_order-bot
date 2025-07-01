@@ -1,9 +1,12 @@
-""" Version 1.0:
-    - Creation of the bot."""
+""" Version 1.1:
+    - Added a security system so that only certain people with the roles can run.
+    - Changed the save file to a .env for debloating
+    - Added a setup file
+    - Bug fixes"""
 
 import discord, datetime, os, sys, asyncio, playsound3
+from dotenv import load_dotenv
 from pathlib import Path
-from saveloader import load_json
 from discord.ext import commands
 from rich import print as rprint
 
@@ -13,7 +16,7 @@ def clear():
     elif sys.platform.startswith(('linux', 'cygwin', 'darwin', 'freebsd')):
         os.system('clear')
 
-BOTVER = "1.0"
+BOTVER = "1.1"
 logo = discord.File("images/logo.png", filename="logo.png")
 
 class Bot(commands.Bot):
@@ -53,24 +56,22 @@ class Bot(commands.Bot):
             print(f"ERR {error_code:02d}: {time_format} by {user}")
 
         return embedvar
-    
-    async def on_command_error(self, ctx, error):
-        rprint(f"User: {ctx.author.name}, [grey]{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}[/grey] [[bright_red]ERROR[/bright_red]] {error}")
-        await ctx.reply(f"An error occured, please contact a developer.\nError: ```{error}```")
 
     async def setup_hook(self):
         rprint(f"[grey]{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}[/grey] [[light_green]VERSION[/light_green]] Discord.py version [bright_yellow]{discord.__version__}[/bright_yellow], Bot version [bright_yellow]{BOTVER}[/bright_yellow]")
         await self.load_extension("jishaku")
-        await self.tree.sync()
         rprint(f'[grey]{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}[/grey] [[light_green]SUCCESSFUL[/light_green]] Synced slash commands and loaded jishaku.')
         
         func_commands = Path("./commands")
+        ignore = ["commands\\test", "commands\\saveloader"]
         for command in [str(x) for x in func_commands.iterdir() if x.is_file()]:
             try:
-                await self.load_extension(command.replace("\\", ".")[:-3])
-                rprint(f'[grey]{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}[/grey] [[light_green]SUCCESSFUL[/light_green]] Module \"{command[:-3]}\" has been loaded.')
+                if command.replace("\\", ".")[:-3] not in ignore:
+                    await self.load_extension(command.replace("\\", ".")[:-3])
+                    rprint(f'[grey]{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}[/grey] [[light_green]SUCCESSFUL[/light_green]] Module \"{command[:-3]}\" has been loaded.')
             except Exception as e:
                 rprint(f'[grey]{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}[/grey] [[bright_red]ERROR[/bright_red]] Module \"{command[:-3]}\" failed to load.')
+        await self.tree.sync()
 
 bot = Bot()
 
@@ -132,4 +133,5 @@ async def on_command_error(ctx, error):
 
 if __name__ == "__main__":
     clear()
-    bot.run(load_json("config.json", "token"))
+    load_dotenv()
+    bot.run(os.getenv("token"))

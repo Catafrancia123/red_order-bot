@@ -63,12 +63,10 @@ class Bot(commands.Bot):
         rprint(f'[grey]{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}[/grey] [[light_green]SUCCESSFUL[/light_green]] Synced slash commands and loaded jishaku.')
         
         func_commands = Path("./commands")
-        ignore = ["commands\\test", "commands\\saveloader"]
         for command in [str(x) for x in func_commands.iterdir() if x.is_file()]:
             try:
-                if command.replace("\\", ".")[:-3] not in ignore:
-                    await self.load_extension(command.replace("\\", ".")[:-3])
-                    rprint(f'[grey]{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}[/grey] [[light_green]SUCCESSFUL[/light_green]] Module \"{command[:-3]}\" has been loaded.')
+                await self.load_extension(command.replace("\\", ".")[:-3])
+                rprint(f'[grey]{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}[/grey] [[light_green]SUCCESSFUL[/light_green]] Module \"{command[:-3]}\" has been loaded.')
             except Exception as e:
                 rprint(f'[grey]{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}[/grey] [[bright_red]ERROR[/bright_red]] Module \"{command[:-3]}\" failed to load.')
         await self.tree.sync()

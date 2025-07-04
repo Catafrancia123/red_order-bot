@@ -1,8 +1,6 @@
-""" Version 1.1:
-    - Added a security system so that only certain people with the roles can run.
-    - Changed the save file to a .env for debloating
-    - Added a setup file
-    - Bug fixes"""
+""" Version 1.2-dev1:
+    - Added a currency to the bot (Social credits & Rations)
+    - SQLite implementation (nearly)"""
 
 import discord, datetime, os, sys, asyncio, playsound3
 from dotenv import load_dotenv
@@ -16,7 +14,7 @@ def clear():
     elif sys.platform.startswith(('linux', 'cygwin', 'darwin', 'freebsd')):
         os.system('clear')
 
-BOTVER = "1.1"
+BOTVER = "1.2-dev1"
 logo = discord.File("images/logo.png", filename="logo.png")
 
 class Bot(commands.Bot):
@@ -63,12 +61,18 @@ class Bot(commands.Bot):
         rprint(f'[grey]{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}[/grey] [[light_green]SUCCESSFUL[/light_green]] Synced slash commands and loaded jishaku.')
         
         func_commands = Path("./commands")
+        counter = 0
         for command in [str(x) for x in func_commands.iterdir() if x.is_file()]:
-            try:
+            if counter >= 3:
+                break
+            
+            try:   
                 await self.load_extension(command.replace("\\", ".")[:-3])
                 rprint(f'[grey]{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}[/grey] [[light_green]SUCCESSFUL[/light_green]] Module \"{command[:-3]}\" has been loaded.')
             except Exception as e:
                 rprint(f'[grey]{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}[/grey] [[bright_red]ERROR[/bright_red]] Module \"{command[:-3]}\" failed to load.')
+                print(e)
+            counter += 1
         await self.tree.sync()
 
 bot = Bot()

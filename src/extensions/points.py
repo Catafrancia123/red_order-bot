@@ -1,37 +1,11 @@
 "This cog is in development, do not load it yet."
 
-import discord, json
+import discord, sys, os
+sys.path.append(os.path.abspath(os.path.join('..', 'schemas')))
+from schemas.saveloader import load
 from discord.ext import commands
 
-def load_json(path : str, to_load : str, object : str = None) -> any: #* loads stuff from json
-    with open(path, mode="r", encoding="utf-8") as read_file:
-        load = json.load(read_file)
-        
-    #* json throws a keyerror if the data is not found.
-    try:
-        if object != None:
-            data = load[object][to_load]
-        elif object == None:
-            data = load[to_load]
-    except KeyError:
-        return None
-
-    read_file.close()
-    return data
-
-def edit_json(path : str, to_change : str, value, object : str = None): #* Can edit/add
-    with open(path, mode="r", encoding="utf-8") as read_file:
-        data = json.load(read_file)
-        
-    if object != None:
-        data[object][to_change] = value
-    elif object == None:
-        data[to_change] = value
-    read_file.close()
-
-    with open(path, "w") as outfile:
-        json.dump(data, outfile)
-    outfile.close()
+save = "../save.db"
 
 class Points(commands.Cog):
     def __init__(self, bot):
@@ -44,7 +18,7 @@ class Points(commands.Cog):
         elif not is_social_credit:
             point_type = "ration"
 
-        cur_amount = load_json(f"{point_type}.json", target.name)
+        cur_amount = load(save, point_type, "name", target.name, "amount")
         if cur_amount is None:
             cur_amount = 0
         edit_json(f"{point_type}.json", target.name, cur_amount+amount)
@@ -57,7 +31,7 @@ class Points(commands.Cog):
         elif not is_social_credit:
             point_type = "ration"
 
-        cur_amount = load_json(f"{point_type}.json", target.name)
+        cur_amount = load(save, point_type, "name", target.name, "amount")
         if cur_amount is None:
             cur_amount = 0
         edit_json(f"{point_type}.json", target.name, cur_amount-amount)
@@ -80,7 +54,7 @@ class Points(commands.Cog):
         elif not is_social_credit:
             point_type = "ration"
         
-        cur_amount = load_json(f"{point_type}.json", target.name)
+        cur_amount = load(save, point_type, "name", target.name, "amount")
         if cur_amount is None:
             cur_amount = 0
         await ctx.reply(f"{target.name} has {cur_amount} of {point_type}(s)")

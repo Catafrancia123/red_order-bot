@@ -200,3 +200,4 @@ src/commands/test.py
 *.db
 *.db-shm
 *.db-wal
+*.sqbpro

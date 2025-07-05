@@ -1,7 +1,9 @@
-import discord, datetime
+import discord, datetime, sys, os
+sys.path.append(os.path.abspath(os.path.join('..', 'schemas')))
+from schemas.saveloader import load
 from discord.ext import commands
 
-admin_roles = [1288801886706860082, 1378763072357011566, 1388909508129980598]
+admin_roles = load("save.db", "settings", "name", "admin_role", "value")
 
 class Events(commands.Cog):
     def __init__(self, bot):

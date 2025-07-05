@@ -9,15 +9,15 @@ class Humor(commands.Cog):
     async def wack(self, ctx): 
         await ctx.reply("uhh my head hurts\n- WPCO AI Bot")
 
-    @commands.hybrid_command(with_app_command = True, brief = "Make the bot say anything.")
-    async def say(ctx, *text):
+    @commands.command(brief = "Make the bot say anything.")
+    async def say(self, ctx, *, text: str):
         if ctx.prefix:
             await ctx.message.delete()
-        await ctx.send(str(text))
+        await ctx.send(text)
 
     @commands.hybrid_command(with_app_command = True, brief = "Classic RNG command.")
-    async def roll(ctx, end_num: int, hide: bool = False):
-        await ctx.reply(f":game_die: Rolled Number: {random.randint(1, end_num)}", ephemeral=hide)
+    async def roll(self, ctx, end_num: int):
+        await ctx.reply(f":game_die: Rolled Number: {random.randint(1, end_num)}")
 
 async def setup(bot):
     await bot.add_cog(Humor(bot=bot))   

@@ -11,7 +11,6 @@ What you need to run the bot is the newest Python version, find [here](https://p
 - `rich` (local) - This adds colors and many other stuff you cant do in basic python.
 - `playsound3` (local) - This plays a sound to alert you that the bot is ready.
 - `python-dotenv` (local) - This is for loading a enviroment file for the discord token.
-- `asqlite` (database) - This is the database the bot is going to be using.
 - `jishaku` (misc) - Library for bot statistics, etc.
 
 > [!NOTE]

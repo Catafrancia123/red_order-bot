@@ -1,11 +1,13 @@
-BOTVER = "1.2-dev2"
-""" Version 1.2-dev2:
+BOTVER = "1.2"
+""" Version 1.2:
     - Changes to the file system and renaming folders
     - Added a way to make folders to be packages (classes)
-    - DB implementation (sqlite3)
+    - DB implementation (asqlite)
     - Custom bot startup procedure"""
 
-import discord, datetime, os, sys, asyncio, playsound3, logging, logging.handlers, asqlite
+import discord, datetime, os, sys, asyncio, playsound3, logging, logging.handlers
+from schemas.saveloader import check_table
+from utils.logs import write_traceback
 from dotenv import load_dotenv
 from extensions import EXT_LIST
 from discord.ext import commands
@@ -40,7 +42,7 @@ class Bot(commands.Bot):
                 10:"BLANK", 
                 11:"Connection with Discord failed. Please try again later.", 
                 12:"You don't have permission to run this command. Please contact a developer to run the command.",
-                99:f"An unknown error happened. Please contact the developers.\nError essage: ```{error_msg}```"}
+                99:f"A code error happened. Please contact the developers.\nError essage: ```{error_msg}```"}
 
         embedvar = discord.Embed(
             title=f"Error {error_code:02d}",
@@ -56,7 +58,7 @@ class Bot(commands.Bot):
     async def setup_hook(self):
         rprint(f"[grey]{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}[/grey] [[light_green]VERSION[/light_green]] Discord.py version [bright_yellow]{discord.__version__}[/bright_yellow], Bot version [bright_yellow]{BOTVER}[/bright_yellow]")
         
-        for ext in self.ext: #! <-- The number here represents how much modules is unloaded.
+        for ext in self.ext:
             try:   
                 await self.load_extension(ext.name)
                 rprint(f'[grey]{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}[/grey] [[light_green]SUCCESSFUL[/light_green]] Module \"{ext.name}\" has been loaded.')
@@ -116,14 +118,18 @@ class Bot(commands.Bot):
             await ctx.send(embed=self.make_error_embed(user.name,5))
         else:
             #! what happen?? (python error or smth)
-            rprint(f"[[bright_red]ERROR[/bright_red]] Unknown error: {error}\n{time_format}")
+            rprint(f"[[bright_red]ERROR[/bright_red]] Python error: {error}\n{time_format}")
             await ctx.send(embed=self.make_error_embed(user.name,error_msg=error))
+            write_traceback(error)
+            
         
-
 async def main():
     #* 1. The logger
+    logs = ["error", "bot"]
+    for log_file in logs:
+        open(f"{log_file}.log", "w").close()
     logger = logging.getLogger('discord')
-    logger.setLevel(logging.INFO)
+    logger.setLevel(logging.DEBUG)
 
     handler = logging.handlers.RotatingFileHandler(
         filename='bot.log',
@@ -138,7 +144,12 @@ async def main():
     logger.addHandler(handler)
     rprint(f'[grey]{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}[/grey] [[light_green]SUCCESSFUL[/light_green]] Logger has been set up.')
 
-    #* 2. The startup
+    #* 2. The database
+    tables = ["ration", "social_credit"]
+    for table in tables:
+        await check_table(SAVE, table)
+
+    #* 3. The startup
     load_dotenv()
     intents = discord.Intents.default()
     intents.members = True #! can see members
@@ -146,7 +157,9 @@ async def main():
     async with Bot(
         command_prefix="$",
         intents=intents,
-        ext=EXT_LIST[:-1],
+        allowed_mentions=discord.AllowedMentions(roles=True, users=True, replied_user=True, everyone=False),
+        description="Glory to the Supreme Leader, Parabellum!",
+        ext=EXT_LIST, #! <-- The number here represents how much modules is unloaded.
     ) as bot:
         await bot.start(os.getenv("token"), reconnect=True)
 

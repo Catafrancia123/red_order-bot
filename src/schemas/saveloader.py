@@ -1,4 +1,4 @@
-import sqlite3, asyncio
+import asqlite, asyncio, sqlite3
 
 """SQLite Notes:
 1. Data Types
@@ -12,58 +12,62 @@ BLOB - any
 NN (Not Null) - The data must not be empty.
 """
 
-def edit(path: str, table: str, column: str, column_index: str, to_change: str, value):
-    conn = sqlite3.connect(path)
-    cursor = conn.cursor()
+async def check_table(path: str, table: str):
+    async with asqlite.connect(path) as conn, conn.cursor() as cursor:
+        await cursor.execute(f"CREATE TABLE IF NOT EXISTS {table} (name TEXT NOT NULL ON CONFLICT ABORT, value BLOB)")
 
-    try:
-        cursor.execute(f"UPDATE OR ABORT {table} SET {to_change} = {value} WHERE {column} = {column_index}")
-    except sqlite3.OperationalError:
-        raise KeyError("Data can not be updated, please check the data types of the column and the input.")
-    conn.commit()
-
-def add(path: str, table: str, column: str, value, default_value: bool = False):
-    conn = sqlite3.connect(path)
-    cursor = conn.cursor()
+async def edit(path: str, table: str, value_index: str, value):
+    """
+    Edits a existing data to a database file.
     
-    try:
-        if not default_value:
-            cursor.execute(f"INSERT OR ABORT INTO {table} ({column}) VALUES({value})")
-        else:
-            cursor.execute(f"INSERT OR ABORT INTO {table} ({column}) DEFAULT VALUES")
-            
-        conn.commit()
-    except sqlite3.OperationalError:
-        raise KeyError("Data can not be updated, please check the data types of the column and the input.")
+    Args:
+        path (str): The path of the database file.
+        table (str): The table that the data will is in.
+        value_index (str): The data's name.
+        value (any): The data you want to insert.
+    """
 
-def load(path: str, table: str, column: str, column_index: str, to_load: str) -> any:
+    async with asqlite.connect(path) as conn, conn.cursor() as cursor:
+        code = f"UPDATE OR ABORT {table} SET value = ? WHERE name = ?"
+        await cursor.execute(code, value, value_index)
+        await conn.commit()
+
+async def add(path: str, table: str, value_index: str, value):
+    """
+    Adds data to a database file.
+    
+    Args:
+        path (str): The path of the database file.
+        table (str): The table that the data will be in.
+        value_index (str): The data's name.
+        value (any): The data you want to insert.
+    """
+
+    async with asqlite.connect(path) as conn, conn.cursor() as cursor:
+        code = f"INSERT OR ABORT INTO {table} (name, value) VALUES(?,?)"
+        await cursor.execute(code, (value_index, value))     
+        await conn.commit()
+
+async def load(path: str, table: str, value_index: str) -> any:
     """
     Loads data from a database file.
     
     Args:
         path (str): The path of the database file.
         table (str): The table that the data is in.
-        column (str): The data's column that hosts the name.
-        column_index (str): The data's name.
-        to_load (str): The data's column that hosts the value.
+        value_index (str): The data's name.
         
     Returns: 
         any: The data itself.
     """
-    
-    conn = sqlite3.connect(path)
-    cursor = conn.cursor()
-    try:
-        #cursor.execute(f"SELECT {to_load} FROM {table} WHERE {column} = '{column_index}'")
-        cursor.execute("SELECT value FROM settings WHERE name = 'admin_role'")
-        data = cursor.fetchone()
-    except Exception as e:
-        raise KeyError(e)
-            
-    if data is None:
-        raise KeyError("Data not found, please check the inputs again.")
-    else:
-        return data[0]
 
+    async with asqlite.connect(path) as conn, conn.cursor() as cursor:
+        code = f"SELECT value FROM {table} WHERE name = ?"
+        await cursor.execute(code, (value_index))
+        data = await cursor.fetchone()
+
+    if data is not None:
+        return data[0]
+    
 if __name__ == "__main__":
-    print(load("save.db", "settings", "name", "admin_role", "value"))
+    print(asyncio.run(load("../save.db", "social_credit", "catamapp")))

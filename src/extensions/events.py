@@ -1,9 +1,10 @@
-import discord, datetime, sys, os
-sys.path.append(os.path.abspath(os.path.join('..', 'schemas')))
-from schemas.saveloader import load
+import discord, datetime, sys, os, tomllib
 from discord.ext import commands
+sys.path.append(os.path.abspath(os.path.join('..', 'utils')))
 
-admin_roles = load("save.db", "settings", "name", "admin_role", "value")
+with open("config.toml", "rb") as config:
+    data = tomllib.load(config)
+    admin_roles = data["guild-settings"]["admin_roles"]
 
 class Events(commands.Cog):
     def __init__(self, bot):
@@ -25,8 +26,8 @@ class Events(commands.Cog):
             color=discord.Color.red(),
         )
         embedvar.set_footer(text=self.time_format)
-        
-        await ctx.send(f"<@&1326784766812360725>", embed=embedvar)
+
+        await ctx.send(f"<@&1298976940656689253>", embed=embedvar)
 
     @commands.has_any_role(*admin_roles)
     @commands.hybrid_command(with_app_command = True, brief = "Hosts a training.")

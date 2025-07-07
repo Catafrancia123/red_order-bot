@@ -1,5 +1,10 @@
-import discord, datetime
+import discord, datetime, sys, os, tomllib
 from discord.ext import commands
+sys.path.append(os.path.abspath(os.path.join('..', 'utils')))
+
+with open("config.toml", "rb") as config:
+    data = tomllib.load(config)
+    admin_roles = data["guild-settings"]["admin_roles"]
 
 class Events(commands.Cog):
     def __init__(self, bot):
@@ -7,7 +12,7 @@ class Events(commands.Cog):
         self.logo = discord.File("images/logo.png", filename="logo.png")
         self.time_format = datetime.datetime.strftime(datetime.datetime.now(datetime.timezone.utc), "Today at %I:%M %p UTC.")
 
-    @commands.has_any_role(1378763072357011566, 1388909508129980598)
+    @commands.has_any_role(*admin_roles)
     @commands.hybrid_command(with_app_command = True, brief = "Hosts a deployment.")
     async def deployment(self, ctx, time_unix: int, location: str, text: str, host: discord.Member = None):
         if not host:
@@ -21,10 +26,10 @@ class Events(commands.Cog):
             color=discord.Color.red(),
         )
         embedvar.set_footer(text=self.time_format)
-        
-        await ctx.send(f"<@&1326784766812360725>", embed=embedvar)
 
-    @commands.has_any_role(1378763072357011566, 1388909508129980598)
+        await ctx.send(f"<@&1298976940656689253>", embed=embedvar)
+
+    @commands.has_any_role(*admin_roles)
     @commands.hybrid_command(with_app_command = True, brief = "Hosts a training.")
     async def training(self, ctx, type: str, time_unix: int, text: str, host: discord.Member = None):
         if not host:
@@ -41,7 +46,7 @@ class Events(commands.Cog):
         
         await ctx.send(f"<@&1326784766812360725>", embed=embedvar)
 
-    @commands.has_any_role(1378763072357011566, 1388909508129980598)
+    @commands.has_any_role(*admin_roles)
     @commands.hybrid_command(with_app_command = True, brief = "Hosts a tryout.")
     async def tryout(self, ctx, time_unix: int, location: str, text: str, host: discord.Member = None):
         if not host:

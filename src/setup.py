@@ -1,5 +1,5 @@
 import subprocess, sys, os
-packages = ["rich", "discord.py", "playsound3", "python-dotenv", "jishaku"]
+packages = ["rich", "discord.py", "playsound3", "python-dotenv", "jishaku", "asqlite"]
 
 def clear():
     if sys.platform.startswith(('win32')):

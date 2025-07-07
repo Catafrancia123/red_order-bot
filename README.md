@@ -1,4 +1,4 @@
-![Version](https://img.shields.io/badge/version-1.2--dev2-red?style=plastic) [![Discord](https://img.shields.io/discord/990326151987724378?logo=discord&logoColor=white&color=5865F2)](https://discord.gg/JaDcEjNyfk) 
+![Version](https://img.shields.io/badge/version-1.2-red?style=plastic) [![Discord](https://img.shields.io/discord/990326151987724378?logo=discord&logoColor=white&color=5865F2)](https://discord.gg/JaDcEjNyfk) 
 # red_order-bot
 This repository is for one of my commisions in Discord for the SCP:RP faction: The Red Order. This repository is for open-source purposes.
 > [!NOTE]
@@ -11,6 +11,7 @@ What you need to run the bot is the newest Python version, find [here](https://p
 - `rich` (local) - This adds colors and many other stuff you cant do in basic python.
 - `playsound3` (local) - This plays a sound to alert you that the bot is ready.
 - `python-dotenv` (local) - This is for loading a enviroment file for the discord token.
+- `asqlite` (database) - This is the database the bot is going to be using.
 - `jishaku` (misc) - Library for bot statistics, etc.
 
 > [!NOTE]
@@ -24,15 +25,20 @@ Before running the bot, you need a `.env` file with the code below:
 ```env
 token="your_discord_bot_token_here"
 ```
+Then you need a `config.toml` file as the config for the bot, with the code below:
+```toml
+title = "Config file"
+
+[guild-settings]
+admin_roles = [128880188670686008, 1378763072357011566, ...]
+```
 And you also need a database file (.db) with the SQL code below:
 ```sql
-CREATE TABLE settings (name TEXT NOT NULL ON CONFLICT ABORT, value BLOB)
 CREATE TABLE social_credit (username TEXT NOT NULL ON CONFLICT ABORT, amount INTEGER NOT NULL DEFAULT 0)
 CREATE TABLE ration (username TEXT NOT NULL ON CONFLICT ABORT, amount INTEGER NOT NULL DEFAULT 0)
-INSERT OR ABORT INTO settings (name) VALUES("admin_role")
-INSERT OR ABORT INTO settings (value) VALUES(["insert_discord_admin_role_ids_here"])
 ```
 
+Sorry for the hassle!
 ## Running it
 Run the `main.py` file and wait for the setup process to complete. Once you hear a *beep* sound, it's ready to use.
 You can monitor the bot via the command line for errors and events.

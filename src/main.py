@@ -154,7 +154,7 @@ async def main():
     async with Bot(
         command_prefix="$",
         intents=intents,
-        allowed_mentions=discord.AllowedMentions(roles=True, users=True, replied_user=True, everyone=False),
+        allowed_mentions=discord.AllowedMentions(roles=True, users=True, replied_user=True, everyone=True),
         description="Glory to the Supreme Leader, Parabellum!",
         ext=EXT_LIST, #! <-- The number here represents how much modules is unloaded.
     ) as bot:

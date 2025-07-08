@@ -27,7 +27,7 @@ class Events(commands.Cog):
         )
         embedvar.set_footer(text=self.time_format)
 
-        await ctx.send(f"<@&1298976940656689253>", embed=embedvar)
+        await ctx.send(f"<@&1326784766812360725>", embed=embedvar)
 
     @commands.has_any_role(*admin_roles)
     @commands.hybrid_command(with_app_command = True, brief = "Hosts a training.")

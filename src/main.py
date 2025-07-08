@@ -5,7 +5,7 @@ BOTVER = "1.2"
     - DB implementation (asqlite)
     - Custom bot startup procedure"""
 
-import discord, datetime, os, sys, asyncio, playsound3, logging, logging.handlers
+import discord, datetime, os, sys, asyncio, logging, logging.handlers
 from schemas.saveloader import check_table
 from utils.logs import write_traceback
 from dotenv import load_dotenv
@@ -20,7 +20,6 @@ def clear():
         os.system('clear')
 
 SAVE = "save.db"
-logo = discord.File("images/logo.png", filename="logo.png")
 
 class Bot(commands.Bot):
     def __init__(self, *args, ext: list[str], **kwargs):
@@ -71,10 +70,6 @@ class Bot(commands.Bot):
         rprint(f'[grey]{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}[/grey] [[light_green]SUCCESSFUL[/light_green]] Synced slash commands and loaded jishaku.')
         rprint(f"[grey]{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}[/grey] [[bright_yellow]WARNING[/bright_yellow]] Please ping catamapp for bot maintenance/unknown errors.")
         rprint(f'[grey]{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}[/grey] [[light_green]COMPLETE[/light_green]] Bot has completed startup and now can be used.')
-        try:
-            await asyncio.run(playsound3.playsound("sounds/beep.wav"))
-        except Exception as e:
-            pass
 
     async def on_command_error(self, ctx, error):
         user = ctx.author

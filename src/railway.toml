@@ -1,0 +1,5 @@
+[build]
+buildCommand = "python3 -m setup"
+
+[deploy]
+startCommand = "python3 -m main"

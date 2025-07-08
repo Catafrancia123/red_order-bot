@@ -9,7 +9,6 @@ with open("config.toml", "rb") as config:
 class Events(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.logo = discord.File("images/logo.png", filename="logo.png")
         self.time_format = datetime.datetime.strftime(datetime.datetime.now(datetime.timezone.utc), "Today at %I:%M %p UTC.")
 
     @commands.has_any_role(*admin_roles)

@@ -1,0 +1,4 @@
+title = "Config file"
+
+[guild-settings]
+admin_roles = [1288801886706860082, 1378763072357011566, 1388909508129980598]

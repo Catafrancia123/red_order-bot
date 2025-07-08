@@ -203,4 +203,3 @@ src/commands/test.py
 *.db-shm
 *.db-wal
 *.sqbpro
-*.toml

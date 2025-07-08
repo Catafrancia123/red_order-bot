@@ -1,9 +1,6 @@
-BOTVER = "1.2"
+BOTVER = "1.2.1"
 """ Version 1.2:
-    - Changes to the file system and renaming folders
-    - Added a way to make folders to be packages (classes)
-    - DB implementation (asqlite)
-    - Custom bot startup procedure"""
+    - Changed the setup file to create the DB also."""
 
 import discord, datetime, os, sys, asyncio, playsound3, logging, logging.handlers
 from schemas.saveloader import check_table

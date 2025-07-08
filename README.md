@@ -31,6 +31,7 @@ title = "Config file"
 
 [guild-settings]
 admin_roles = [128880188670686008, 1378763072357011566, ...]
+```
 
 Sorry for the hassle!
 ## Running it

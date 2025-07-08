@@ -1,6 +1,7 @@
-BOTVER = "1.2.1"
-""" Version 1.2:
-    - Changed the setup file to create the DB also."""
+BOTVER = "1.2.2"
+""" Version 1.2.2:
+    - Changed points showcase from username to pinging the user
+    - Minor bug fixes"""
 
 import discord, datetime, os, sys, asyncio, playsound3, logging, logging.handlers
 from schemas.saveloader import check_table

@@ -1,5 +1,6 @@
 [build]
-buildCommand = "python3 -m setup"
+builder = "NIXPACKS"
+buildCommand = "python3 -m src/setup"
 
 [deploy]
-startCommand = "python3 -m main"
+startCommand = "python3 -m src/main"

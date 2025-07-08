@@ -31,12 +31,6 @@ title = "Config file"
 
 [guild-settings]
 admin_roles = [128880188670686008, 1378763072357011566, ...]
-```
-And you also need a database file (.db) with the SQL code below:
-```sql
-CREATE TABLE social_credit (username TEXT NOT NULL ON CONFLICT ABORT, amount INTEGER NOT NULL DEFAULT 0)
-CREATE TABLE ration (username TEXT NOT NULL ON CONFLICT ABORT, amount INTEGER NOT NULL DEFAULT 0)
-```
 
 Sorry for the hassle!
 ## Running it
